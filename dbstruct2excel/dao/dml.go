@@ -1,4 +1,4 @@
-package tableinfo
+package dao
 
 import (
 	"dbstruct2excel/models"

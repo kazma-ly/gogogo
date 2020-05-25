@@ -5,18 +5,18 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
 type (
-	// ExcelHeader all header
-	ExcelHeader struct {
+	// Header excel header
+	Header struct {
 		Name    string
 		Comment string
 	}
 
-	// ExcelFieldInfo excel field list struct
-	ExcelFieldInfo struct {
+	// FieldInfo excel field list struct
+	FieldInfo struct {
 		Name    string
 		Type    string
 		Key     string
@@ -27,9 +27,14 @@ type (
 )
 
 var (
-	excelFile       *excelize.File
-	indexSheetName  = "index"
-	tableSheetName  = "tabel"
+	// excel file
+	excelFile *excelize.File
+	// excel sheet control
+	indexSheetName = "index"
+	tableSheetName = "tabel"
+	indexSheetNum  = 0
+	tableSheetNum  = 1
+	// excel line control
 	indexSheetIndex = 1
 	tableSheetIndex = 1
 )
@@ -37,12 +42,11 @@ var (
 func init() {
 	excelFile = excelize.NewFile()
 
-	// index sheet setting
-	excelFile.SetActiveSheet(1)
-	excelFile.SetSheetName(excelFile.GetSheetName(1), indexSheetName)
+	// "index" sheet setting
+	excelFile.SetSheetName(excelFile.GetSheetName(0), indexSheetName)
 	excelFile.SetColWidth(indexSheetName, "A", "F", 20)
 
-	// table sheet settng
+	// "table" sheet settng
 	excelFile.SetActiveSheet(excelFile.NewSheet(tableSheetName))
 	excelFile.SetColWidth(tableSheetName, "A", "A", 40)
 	excelFile.SetColWidth(tableSheetName, "B", "E", 20)
@@ -50,7 +54,7 @@ func init() {
 }
 
 // WriteIndexSheet write index sheet
-func WriteIndexSheet(excelHeader *ExcelHeader) {
+func WriteIndexSheet(excelHeader *Header) {
 	excelFile.SetActiveSheet(excelFile.GetSheetIndex(indexSheetName))
 
 	currentIndexStr := strconv.Itoa(indexSheetIndex)
@@ -59,7 +63,7 @@ func WriteIndexSheet(excelHeader *ExcelHeader) {
 }
 
 // WriteTableInfo write a table info
-func WriteTableInfo(excelHeader *ExcelHeader, fieldInfos []ExcelFieldInfo) {
+func WriteTableInfo(excelHeader *Header, fieldInfos []FieldInfo) {
 	excelFile.SetActiveSheet(excelFile.GetSheetIndex(tableSheetName))
 
 	// write header
@@ -96,18 +100,18 @@ func WriteTableInfo(excelHeader *ExcelHeader, fieldInfos []ExcelFieldInfo) {
 // Save save excel file
 func Save(fileName string) {
 	tableSheetIndex = 1
-	excelFile.SetActiveSheet(1)
+	excelFile.SetActiveSheet(excelFile.GetSheetIndex(indexSheetName))
 	excelFile.SaveAs(fileName + ".xlsx")
 }
 
-func writeHeader(sheetName, currentIndexStr string, val *ExcelHeader) {
+func writeHeader(sheetName, currentIndexStr string, val *Header) {
 	excelFile.MergeCell(sheetName, "A"+currentIndexStr, "C"+currentIndexStr)
 	excelFile.SetCellStr(sheetName, "A"+currentIndexStr, val.Name)
 	excelFile.MergeCell(sheetName, "D"+currentIndexStr, "F"+currentIndexStr)
 	excelFile.SetCellStr(sheetName, "D"+currentIndexStr, val.Comment)
 }
 
-func writeOneLineExcel(excelFile *excelize.File, sheetName string, postion int, filedInfo *ExcelFieldInfo) int {
+func writeOneLineExcel(excelFile *excelize.File, sheetName string, postion int, filedInfo *FieldInfo) int {
 	currentPostion := strconv.Itoa(postion)
 
 	excelFile.SetCellStr(sheetName, "A"+currentPostion, filedInfo.Name)

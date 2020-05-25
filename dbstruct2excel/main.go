@@ -2,8 +2,8 @@ package main
 
 import (
 	"dbstruct2excel/config"
+	"dbstruct2excel/dao"
 	"dbstruct2excel/excel"
-	"dbstruct2excel/tableinfo"
 	"fmt"
 	"log"
 
@@ -25,18 +25,18 @@ func main() {
 }
 
 func saveByDML(db *sqlx.DB, dbName string) {
-	tableInfos := tableinfo.GetDMLTableInfo(db, dbName)
+	tableInfos := dao.GetDMLTableInfo(db, dbName)
 	for _, tableInfo := range tableInfos {
-		header := &excel.ExcelHeader{
+		header := &excel.Header{
 			Name:    tableInfo.TableName,
 			Comment: tableInfo.TableComment.String,
 		}
 		excel.WriteIndexSheet(header)
 
-		filedInfos := tableinfo.GetDMLFieldInfo(db, dbName, tableInfo.TableName)
-		excelFieldInfos := []excel.ExcelFieldInfo{}
+		filedInfos := dao.GetDMLFieldInfo(db, dbName, tableInfo.TableName)
+		excelFieldInfos := []excel.FieldInfo{}
 		for _, filedInfo := range filedInfos {
-			excelFieldInfos = append(excelFieldInfos, excel.ExcelFieldInfo{
+			excelFieldInfos = append(excelFieldInfos, excel.FieldInfo{
 				Name:    filedInfo.FieldName,
 				Type:    filedInfo.Type,
 				Key:     filedInfo.Key.String,
@@ -53,18 +53,18 @@ func saveByDML(db *sqlx.DB, dbName string) {
 }
 
 func saveByDDL(db *sqlx.DB, dbName string) {
-	tableInfos := tableinfo.GetDDLTableInfo(db)
+	tableInfos := dao.GetDDLTableInfo(db)
 	for _, tableInfo := range tableInfos {
-		header := &excel.ExcelHeader{
+		header := &excel.Header{
 			Name:    tableInfo.Name,
 			Comment: tableInfo.Comment.String,
 		}
 		excel.WriteIndexSheet(header)
 
-		filedInfos := tableinfo.GetDDLFieldInfo(db, tableInfo.Name)
-		excelFieldInfos := []excel.ExcelFieldInfo{}
+		filedInfos := dao.GetDDLFieldInfo(db, tableInfo.Name)
+		excelFieldInfos := []excel.FieldInfo{}
 		for _, filedInfo := range filedInfos {
-			excelFieldInfos = append(excelFieldInfos, excel.ExcelFieldInfo{
+			excelFieldInfos = append(excelFieldInfos, excel.FieldInfo{
 				Name:    filedInfo.Field,
 				Type:    filedInfo.Type,
 				Key:     filedInfo.Key.String,
