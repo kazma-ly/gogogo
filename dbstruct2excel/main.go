@@ -6,6 +6,7 @@ import (
 	"dbstruct2excel/excel"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -77,5 +78,5 @@ func saveByDDL(db *sqlx.DB, dbName string) {
 		excel.WriteTableInfo(header, excelFieldInfos)
 	}
 
-	excel.Save(dbName)
+	excel.Save(dbName + "_" + time.Now().Format("2006-01-02"))
 }
