@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v31/github"
@@ -15,14 +16,14 @@ import (
 
 var (
 	// Need Write
-	accessToken = "Github AccessToken"
+	accessToken = ""
 
 	// Info
 	branch           = "master"
-	repoName         = "kazma233.github.io"
+	repoName         = "static"
 	owner            = "kazma233"
 	defaultCommitMsg = "upload file via go client"
-	email            = "zly.private@hotmail.com"
+	email            = "kazma233@outlook.com"
 	pathDateFormat   = "20060102"
 	walkPath         = "./images"
 )
@@ -38,6 +39,18 @@ func main() {
 	client := github.NewClient(tc)
 
 	rootPath := time.Now().Format(pathDateFormat)
+
+	// remove filename whiteblank
+	filepath.Walk(walkPath, func(path string, info os.FileInfo, err error) error {
+		fileName := info.Name()
+		turstString := strings.ReplaceAll(fileName, " ", "-")
+		if strings.Compare(fileName, turstString) != 0 {
+			newPath := strings.Split(path, fileName)[0] + turstString
+			os.Rename(path, newPath)
+		}
+
+		return nil
+	})
 
 	filepath.Walk(walkPath, func(path string, info os.FileInfo, err error) error {
 
@@ -79,7 +92,7 @@ func main() {
 					Name:  github.String(owner),
 					Email: github.String(email),
 				},
-				// SHA: github.String(string(_sha.Sum(nil))),
+				SHA: github.String(string(_sha.Sum(nil))),
 			})
 
 			if err != nil {
